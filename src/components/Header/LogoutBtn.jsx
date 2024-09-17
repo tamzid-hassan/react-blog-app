@@ -19,3 +19,6 @@ function LogoutBtn() {
         >Logout</button>
     )
 }
+
+
+export default LogoutBtn
