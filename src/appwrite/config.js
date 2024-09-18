@@ -7,6 +7,8 @@ export class Service {
     databases;
     bucket;
 
+    userData;
+
     constructor() {
         this.client
             .setEndpoint(conf.appwriteUrl)
@@ -91,6 +93,24 @@ export class Service {
             )
         } catch (error) {
             console.log("Appwrite serice :: getPosts :: error", error)
+            return false;
+        }
+    }
+
+    async getPostsforCurrentUser(queries, userData) {
+        try {
+
+            // console.log(userData)
+
+            queries = [Query.equal("userId", userData.$id)];
+
+            return await this.databases.listDocuments(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                queries
+            )
+        } catch (error) {
+            console.log("Appwrite serice :: getPostsforCurrentUser :: error", error)
             return false;
         }
     }

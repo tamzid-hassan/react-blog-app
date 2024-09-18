@@ -30,7 +30,7 @@ function App() {
         <Header />
         <main>
           {/* TODO: Handle this */}
-          {/* <Outlet /> */}
+          <Outlet />
         </main>
         <Footer />
       </div>

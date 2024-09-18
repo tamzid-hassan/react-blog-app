@@ -12,7 +12,7 @@ export function Signup() {
     const navigate = useNavigate()
     const [error, setError] = useState("")
     const dispatch = useDispatch()
-    const { register, handleSubmit } = useForm()
+    const { register, formState: { errors }, handleSubmit } = useForm()
 
     const create = async (data) => {
         setError("")
@@ -23,8 +23,11 @@ export function Signup() {
                 if (userData) dispatch(login(userData));
                 navigate("/")
             }
-        } catch (error) {
-            setError(error.message)
+
+
+        } catch (err) {
+
+            setError(err.message)
         }
     }
 
@@ -46,7 +49,8 @@ export function Signup() {
                         Sign In
                     </Link>
                 </p>
-                {error && <p className="mt-8 text-center text-red-600">{error}</p>}
+
+                {error.length > 0 && <p className="mt-8 text-center text-red-600">{error}</p>}
 
                 <form onSubmit={handleSubmit(create)}>
                     <div className='space-y-5'>
@@ -54,29 +58,41 @@ export function Signup() {
                             label="Full Name: "
                             placeholder="Enter your full name"
                             {...register("name", {
-                                required: true,
+                                required: "Full Name is required",
                             })}
                         />
+                        {errors.name && <p role="alert" className="mt-8 text-center text-red-600">{errors.name.message}</p>}
+
                         <Input
                             label="Email: "
                             placeholder="Enter your email"
                             type="email"
                             {...register("email", {
-                                required: true,
-                                validate: {
-                                    matchPatern: (value) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                                        "Email address must be a valid address",
+                                required: "Email is required",
+                                pattern: {
+                                    value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+                                    message: "Email address must be a valid address"
                                 }
                             })}
                         />
+
+                        {errors.email && <p role="alert" className="mt-8 text-center text-red-600">{errors.email.message}</p>}
+
                         <Input
                             label="Password: "
                             type="password"
                             placeholder="Enter your password"
                             {...register("password", {
-                                required: true,
+                                required: "Password is required",
+                                pattern: {
+                                    value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/,
+                                    message: "Password must contain at least 1 uppercase, 1 lowercase, and 1 number"
+                                }
                             })}
                         />
+
+                        {errors.password && <p role="alert" className="my-8 text-center text-red-600">{errors.password.message}</p>}
+
                         <Button type="submit" className="w-full">
                             Create Account
                         </Button>

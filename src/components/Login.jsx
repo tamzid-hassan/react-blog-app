@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { login as authLogin } from '../store/authSlice'
 import Button from "./Button"
@@ -11,20 +11,28 @@ import { useForm } from "react-hook-form"
 function Login() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const { register, handleSubmit } = useForm()
+    const { register, formState: { errors }, handleSubmit } = useForm()
     const [error, setError] = useState("")
 
     const login = async (data) => {
         setError("")
         try {
             const session = await authService.login(data)
-            if (session) {
+
+            if (typeof session !== 'string') {
                 const userData = await authService.getCurrentUser()
+                console.log(userData)
+
                 if (userData) dispatch(authLogin(userData));
+
                 navigate("/")
+
+            } else {
+                setError(session)
             }
-        } catch (error) {
-            setError(error.message)
+
+        } catch (err) {
+            setError(err.message)
         }
     }
 
@@ -48,6 +56,7 @@ function Login() {
                         Sign Up
                     </Link>
                 </p>
+                {/* TODO: This appwrite API request error*/}
                 {error && <p className="mt-8 text-center text-red-600">{error}</p>}
                 <form onSubmit={handleSubmit(login)} className='mt-8'>
                     <div className='space-y-5'>
@@ -56,25 +65,38 @@ function Login() {
                             placeholder="Enter your email"
                             type="email"
                             {...register("email", {
-                                required: true,
-                                validate: {
-                                    matchPatern: (value) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                                        "Email address must be a valid address",
+                                required: "Email is required",
+                                pattern: {
+                                    value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+                                    message: "Email address must be a valid address"
                                 }
                             })}
                         />
+
+                        {/* TODO: These are form validation from client side*/}
+                        {errors.email && <p role="alert" className="mt-8 text-center text-red-600">{errors.email.message}</p>}
+
+
                         <Input
                             label="Password: "
                             type="password"
                             placeholder="Enter your password"
                             {...register("password", {
                                 required: true,
-                                validate: {
-                                    matchPatern: (value) => /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(value) ||
-                                        "Password must contain at least 1 uppercase, 1 lowercase, and 1 number"
+                                pattern: {
+                                    value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/
                                 }
                             })}
                         />
+
+                        {errors?.password?.type === "required" && (
+                            <p role="alert" className="mt-8 text-center text-red-600">Password is required</p>
+                        )}
+
+                        {errors?.password?.type === "pattern" && (
+                            <p role="alert" className="mt-8 text-center text-red-600">Password must contain at least 1 uppercase, 1 lowercase, and 1 number</p>
+                        )}
+
                         <Button
                             type="submit"
                             className="w-full"
