@@ -12,6 +12,15 @@ export class AuthService {
             .setProject(conf.appwriteProjectId)
 
         this.account = new Account(this.client)
+
+
+        // console.log(conf.appwriteUrl)
+        // console.log(conf.appwriteProjectId)
+        // console.log(conf.appwriteDatabaseId)
+        // console.log(conf.appwriteCollectionId)
+        // console.log(conf.appwriteBuckteId)
+
+
     }
 
     async createAccount({ email, password, name }) {
@@ -37,7 +46,7 @@ export class AuthService {
 
     async login({ email, password }) {
         try {
-            return await this.account.createEmailSession(email, password);
+            return await this.account.createEmailPasswordSession(email, password);
         } catch (error) {
             console.log("Appwrite serice :: login :: error", error)
         }
